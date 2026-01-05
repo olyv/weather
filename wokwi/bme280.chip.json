@@ -1,0 +1,36 @@
+
+{
+  "name": "bme280",
+  "description": "Simulated BME280 with adjustable temperature, humidity & pressure",
+  "author": "Your Name",
+  "pins": ["VCC", "GND", "SCL", "SDA"],
+  "controls": [
+    {
+      "id": "temperature",
+      "label": "Temperature",
+      "type": "range",
+      "min": -40,
+      "max": 85,
+      "step": 0.5,
+      "unit": "°C"
+    },
+    {
+      "id": "humidity",
+      "label": "Relative Humidity",
+      "type": "range",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    {
+      "id": "pressure",
+      "label": "Pressure",
+      "type": "range",
+      "min": 300,
+      "max": 1100,
+      "step": 0.1,
+      "unit": "hPa"
+    }
+  ]
+}
