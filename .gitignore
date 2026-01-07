@@ -3,3 +3,7 @@
 *.iws
 *.iml
 *.ipr
+
+### mosquitto
+mosquitto/data
+mosquitto/log

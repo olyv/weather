@@ -1,0 +1,5 @@
+### mosquitto
+mosquitto/data
+mosquitto/log
+
+.git
