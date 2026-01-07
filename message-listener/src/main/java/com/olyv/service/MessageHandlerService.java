@@ -1,4 +1,4 @@
-package com.olyv.config;
+package com.olyv.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,9 +10,9 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MessageHandler {
+public class MessageHandlerService {
 
-    private static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(MessageHandlerService.class);
     private static final String INSERT_SQL = """
             INSERT
             INTO weather_readings (temperature, humidity, pressure)
@@ -21,7 +21,7 @@ public class MessageHandler {
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper mapper;
 
-    public MessageHandler(JdbcTemplate jdbcTemplate, ObjectMapper mapper) {
+    public MessageHandlerService(JdbcTemplate jdbcTemplate, ObjectMapper mapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
     }
