@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="App-local" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.olyv.App" />
+    <module name="message-listener" />
+    <option name="VM_PARAMETERS" value="-Dspring.profiles.active=local" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/message-listener" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.olyv.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

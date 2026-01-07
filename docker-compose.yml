@@ -7,13 +7,12 @@ services:
     container_name: mosquitto-init
     user: "root"
     volumes:
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
-    # 1883 is the UID used by the official Mosquitto image
+      - ./broker/config:/mnt/config
+      - ./broker/data:/mnt/data
+      - ./broker/log:/mnt/log
     command: >
-      sh -c "mkdir -p /mosquitto/data /mosquitto/log && 
-             chown -R 1883:1883 /mosquitto/data /mosquitto/log &&
-             chmod -R 755 /mosquitto/data /mosquitto/log"
+      sh -c "chown -R 1883:1883 /mnt/data /mnt/log && 
+             chmod -R 755 /mnt/data /mnt/log"
 
   # 2. MAIN BROKER SERVICE
   mosquitto:
@@ -24,15 +23,33 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
+      - ./broker/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./broker/data:/mosquitto/data
+      - ./broker/log:/mosquitto/log
     depends_on:
       init-mosquitto:
         condition: service_completed_successfully
+    # Tells Mosquitto explicitly where to find the config file
+    command: mosquitto -c /mosquitto/config/mosquitto.conf
     # Healthcheck to ensure the service is actually responding
     healthcheck:
       test: ["CMD-SHELL", "timeout -s 9 1s mosquitto_sub -t '$$SYS/#' -C 1 > /dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
+
+  # 3. JAVA BACK-END
+  weather-app:
+    build:
+      context: ./message-listener
+      dockerfile: Dockerfile
+    container_name: weather-app
+    # Force the app to use the volume path we defined
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    volumes:
+      - weather_db_data:/app/data
+    restart: always
+
+volumes:
+  weather_db_data:

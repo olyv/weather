@@ -5,5 +5,18 @@
 *.ipr
 
 ### mosquitto
-mosquitto/data
-mosquitto/log
+broker/data
+broker/log
+
+# SQLite database files
+message-listener/data/
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Maven
+target/
+
+# Logs
+*.log

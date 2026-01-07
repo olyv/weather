@@ -1,5 +1,13 @@
 ### mosquitto
-mosquitto/data
-mosquitto/log
+broker/data
+broker/log
 
 .git
+
+# build artifacts
+target/
+*.jar
+
+# IDE settings
+.idea/
+*.iml
