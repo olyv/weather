@@ -47,6 +47,8 @@ services:
     # Force the app to use the volume path we defined
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     volumes:
       - weather_db_data:/app/data
     restart: always
