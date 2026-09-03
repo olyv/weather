@@ -1,41 +1,37 @@
 package com.olyv.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class TelegramPublisherService {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramPublisherService.class);
-    private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${telegram.bot.token}")
-    private String botToken;
+    private final TelegramClient telegramClient;
+    private final String defaultChatId;
 
-    @Value("${telegram.chat.id}")
-    private String chatId;
-
-    public void publishWeatherData(String textMessage) {
-        sendToTelegram(textMessage);
+    public TelegramPublisherService(TelegramClient telegramClient,
+                                    @Value("${telegram.chat.id}") String defaultChatId) {
+        this.telegramClient = telegramClient;
+        this.defaultChatId = defaultChatId;
     }
 
-    private void sendToTelegram(String text) {
-        String url = "https://api.telegram.org/bot" + botToken + "/sendMessage";
-        var body = Map.of(
-                "chat_id", chatId,
-                "text", text,
-                "parse_mode", "Markdown"
-        );
+    public void publishWeatherData(String textMessage) {
+        SendMessage message = SendMessage.builder()
+                .chatId(defaultChatId)
+                .text(textMessage)
+                .build();
+
         try {
-            restTemplate.postForObject(url, body, String.class);
-            log.info("Successfully published message to Telegram.");
-        } catch (Exception e) {
-            log.error("Failed to publish to Telegram. Error: {}", e.getMessage());
+            telegramClient.execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Failed to publish message to Telegram: {}", e.getMessage(), e);
         }
     }
 }
