@@ -58,7 +58,7 @@ public class MessageHandlerService {
                     )
             );
         } catch (JsonProcessingException e) {
-            log.error("❌ Failed to parse message: {}", e.getMessage());
+            log.error("❌ Failed to parse message: {} {}", payload, e.getMessage());
         }
         return Optional.empty();
     }

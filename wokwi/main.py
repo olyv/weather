@@ -51,6 +51,7 @@ SSID = 'Wokwi-GUEST'
 PASS = ''
 MQTT_CLIENT_ID = 'esp32-balcony-sensor'
 MQTT_BROKER    = 'broker.mqttdashboard.com'
+MQTT_PORT      = 1883
 MQTT_TOPIC     = 'bme280-weather'
 
 print("Connecting to WiFi...", end="")
@@ -63,7 +64,7 @@ while not sta.isconnected():
 print(" Connected!")
 
 print("Connecting to MQTT Broker...", end="")
-client = MQTTClient(MQTT_CLIENT_ID, MQTT_BROKER)
+client = MQTTClient(MQTT_CLIENT_ID, MQTT_BROKER, port=MQTT_PORT)
 client.connect()
 print(" Connected!")
 
