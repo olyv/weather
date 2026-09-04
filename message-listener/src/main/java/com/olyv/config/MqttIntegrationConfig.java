@@ -26,10 +26,15 @@ public class MqttIntegrationConfig {
 
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
-        DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
-        MqttConnectOptions options = new MqttConnectOptions();
+        var factory = new DefaultMqttPahoClientFactory();
+        var options = new MqttConnectOptions();
+
         options.setServerURIs(new String[] { brokerUrl });
         options.setCleanSession(true);
+        options.setAutomaticReconnect(true);
+        options.setConnectionTimeout(10);
+        options.setKeepAliveInterval(60);
+
         factory.setConnectionOptions(options);
         return factory;
     }
@@ -41,11 +46,13 @@ public class MqttIntegrationConfig {
 
     @Bean
     public MessageProducer inbound() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(clientId, mqttClientFactory(), topic);
+        var adapter = new MqttPahoMessageDrivenChannelAdapter(clientId, mqttClientFactory(), topic);
+
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
         adapter.setOutputChannel(mqttInputChannel());
+
         return adapter;
     }
 }
