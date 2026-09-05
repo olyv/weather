@@ -1,5 +1,7 @@
 package com.olyv.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
@@ -14,6 +16,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Component
 public class TelegramBotHandler implements SpringLongPollingBot {
 
+    private static final Logger log = LoggerFactory.getLogger(TelegramBotHandler.class);
+
     private final WeatherAdvisorService advisorService;
     private final TelegramClient telegramClient;
     private final String botToken;
@@ -27,27 +31,54 @@ public class TelegramBotHandler implements SpringLongPollingBot {
     }
 
     public void handleIncomingMessage(Long chatId, String userMessageText) {
+        log.info("Received message from chatId {}: '{}'", chatId, userMessageText);
+
         try {
-            // 1. Show "typing..." indicator while LLM generates response
+            // 1. Send "typing..." action (non-critical, logged as warning if fails)
+            sendTypingIndicator(chatId);
+
+            // 2. Query LLM + SQLite
+            String aiResponse = advisorService.analyzeForUserQuery(userMessageText);
+
+            // 3. Send final answer back to Telegram
+            sendMessage(chatId, aiResponse);
+            log.info("Successfully replied to chatId {}", chatId);
+
+        } catch (Exception e) {
+            log.error("❌ Error generating response for chatId {}: {}", chatId, e.getMessage(), e);
+            sendFallbackMessage(chatId);
+        }
+    }
+
+    private void sendTypingIndicator(Long chatId) {
+        try {
             SendChatAction chatAction = SendChatAction.builder()
                     .chatId(chatId)
                     .action(ActionType.TYPING.toString())
                     .build();
             telegramClient.execute(chatAction);
-
-            // 2. Query LLM + SQLite
-//            String aiResponse = advisorService.analyzeForUserQuery(userMessageText);
-            String aiResponse = "dummy response to " + userMessageText;
-
-            // 3. Send final answer back to user
-            SendMessage message = SendMessage.builder()
-                    .chatId(chatId)
-                    .text(aiResponse)
-                    .build();
-            telegramClient.execute(message);
-
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.warn("⚠️ Could not send typing indicator to chatId {}: {}", chatId, e.getMessage());
+        }
+    }
+
+    private void sendMessage(Long chatId, String textMessage) throws TelegramApiException {
+        SendMessage message = SendMessage.builder()
+                .chatId(chatId)
+                .text(textMessage)
+                .build();
+        telegramClient.execute(message);
+    }
+
+    private void sendFallbackMessage(Long chatId) {
+        try {
+            SendMessage fallback = SendMessage.builder()
+                    .chatId(chatId)
+                    .text("Sorry, I encountered an error while analyzing the weather data. Please try again in a moment!")
+                    .build();
+            telegramClient.execute(fallback);
+        } catch (TelegramApiException e) {
+            log.error("❌ Failed to send fallback message to chatId {}: {}", chatId, e.getMessage());
         }
     }
 
@@ -64,8 +95,12 @@ public class TelegramBotHandler implements SpringLongPollingBot {
                     Long chatId = update.getMessage().getChatId();
                     String userText = update.getMessage().getText();
 
-                    // SET BREAKPOINT HERE
-                    handleIncomingMessage(chatId, userText);
+                    // Isolated per-message execution loop
+                    try {
+                        handleIncomingMessage(chatId, userText);
+                    } catch (Exception e) {
+                        log.error("❌ Critical error in update consumer loop for chatId {}: {}", chatId, e.getMessage(), e);
+                    }
                 }
             }
         };
