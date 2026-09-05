@@ -9,11 +9,13 @@ spring:
     init:
       mode: always
   ai:
-    vertex:
-      ai:
-        gemini:
-          project-id: ${GCP_PROJECT_ID}
-          location: us-central1
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+        chat:
+          options:
+            model: gemini-3.6-flash
+            temperature: 0.7
 
 # MQTT Broker Settings
 mqtt:

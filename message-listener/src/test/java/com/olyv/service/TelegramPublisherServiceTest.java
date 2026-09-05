@@ -12,7 +12,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TelegramPublisherServiceTest {
@@ -42,5 +45,13 @@ class TelegramPublisherServiceTest {
         assertThat(capturedMessage.getChatId()).isEqualTo(defaultChatId);
         assertThat(capturedMessage.getText()).isEqualTo(testMessage);
     }
-}
 
+    @Test
+    @DisplayName("Should handle TelegramApiException gracefully without rethrowing exception")
+    void publishWeatherData_TelegramApiException_LogsErrorWithoutThrowing() throws TelegramApiException {
+        when(telegramClient.execute(any(SendMessage.class))).thenThrow(new TelegramApiException("Network error"));
+
+        assertThatCode(() -> telegramPublisherService.publishWeatherData("Test message"))
+                .doesNotThrowAnyException();
+    }
+}

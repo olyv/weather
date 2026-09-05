@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static java.time.temporal.ChronoUnit.*;
+
 @Service
 public class MessageHandlerService {
 
@@ -56,12 +58,13 @@ public class MessageHandlerService {
 
     private void persistMessage(WeatherMqttEvent event) {
         var weatherEntity = new WeatherEntity(null,
-                LocalDateTime.now(),
+                LocalDateTime.now().truncatedTo(SECONDS),
                 event.temperature(),
                 event.humidity(),
                 event.pressure()
         );
         weatherRepository.save(weatherEntity);
+        log.info("Persisted weather event: {}", weatherEntity);
     }
 
     private void send(String textMessage) {
