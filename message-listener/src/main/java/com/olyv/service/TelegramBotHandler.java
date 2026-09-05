@@ -38,8 +38,7 @@ public class TelegramBotHandler implements SpringLongPollingBot {
             sendTypingIndicator(chatId);
 
             // 2. Query LLM + SQLite
-            String aiResponse = advisorService.analyzeForUserQuery(userMessageText);
-
+            String aiResponse = advisorService.analyzeForUserQuery(chatId.toString(), userMessageText);
             // 3. Send final answer back to Telegram
             sendMessage(chatId, aiResponse);
             log.info("Successfully replied to chatId {}", chatId);
