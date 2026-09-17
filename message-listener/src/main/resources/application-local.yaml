@@ -3,8 +3,7 @@ spring:
   datasource:
     url: jdbc:sqlite:./data/weather.db
 
-# MQTT Broker Settings
+# MQTT Broker Settings (Defaults to the public HiveMQ broker if .env is missing locally)
 mqtt:
   broker:
-    url: tcp://broker.mqttdashboard.com:1883
-
+    url: tcp://${MQTT_HOST:broker.mqttdashboard.com}:${MQTT_PORT:1883}

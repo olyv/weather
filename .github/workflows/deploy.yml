@@ -1,0 +1,40 @@
+name: Deploy Weather App
+
+on:
+  push:
+    branches:
+      - main
+      - terraform
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Cloud Instances
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        with:
+          host: ${{ secrets.HOST_IP }}
+          username: opc 
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: TELEGRAM_TOKEN,TELEGRAM_CHAT_ID
+          script: |
+            # 1. Clone or pull the codebase
+            if [ ! -d "/home/opc/weather" ]; then
+              git clone https://github.com/olyv/weather.git /home/opc/weather
+              cd /home/opc/weather
+            else
+              cd /home/opc/weather
+              git pull origin main
+            fi
+            
+            # 2. Generate the .env file securely on the server
+            echo "MQTT_HOST=broker.mqttdashboard.com" > .env
+            echo "MQTT_PORT=1883" >> .env
+            echo "TELEGRAM_TOKEN=$TELEGRAM_TOKEN" >> .env
+            echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> .env
+            
+            # 3. Rebuild and deploy the containers
+            sudo docker compose up -d --build --remove-orphans

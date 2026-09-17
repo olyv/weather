@@ -25,7 +25,7 @@ mqtt:
   completion-timeout: 5000
   qos: 1
 
-# purge data older than
+# Purge data older than
 cutoff:
   days: 3
 
@@ -35,4 +35,3 @@ telegram:
     token: ${TELEGRAM_TOKEN}
   chat:
     id: ${TELEGRAM_CHAT_ID}
-

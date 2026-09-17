@@ -24,3 +24,14 @@ target/
 
 #secrets
 .env
+
+#terraform
+.terraform/
+*.tfvars
+*.tfvars.json
+*.tfstate
+*.tfstate.backup
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
