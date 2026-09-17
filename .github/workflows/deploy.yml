@@ -21,6 +21,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: TELEGRAM_TOKEN,TELEGRAM_CHAT_ID
           script: |
+            # 0. Install required packages
+            
+            sudo dnf install -y git
             # 1. Clone or pull the codebase
             if [ ! -d "/home/opc/weather" ]; then
               git clone https://github.com/olyv/weather.git /home/opc/weather
