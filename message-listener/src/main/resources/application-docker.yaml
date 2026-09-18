@@ -3,8 +3,7 @@ spring:
   datasource:
     url: jdbc:sqlite:/app/data/weather.db
 
-# MQTT Broker Settings
+# MQTT Broker Settings (Values injected by Docker Compose from .env)
 mqtt:
   broker:
-    url: tcp://host.docker.internal:1883
-
+    url: tcp://${MQTT_HOST}:${MQTT_PORT:1883}

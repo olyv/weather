@@ -1,57 +1,26 @@
 version: '3.8'
 
 services:
-  # 1. INIT SERVICE: Fixes directory permissions for Linux/Docker
-  init-mosquitto:
-    image: alpine:latest
-    container_name: mosquitto-init
-    user: "root"
-    volumes:
-      - ./broker/config:/mnt/config
-      - ./broker/data:/mnt/data
-      - ./broker/log:/mnt/log
-    command: >
-      sh -c "chown -R 1883:1883 /mnt/data /mnt/log && 
-             chmod -R 755 /mnt/data /mnt/log"
-
-  # 2. MAIN BROKER SERVICE
-  mosquitto:
-    image: eclipse-mosquitto:latest
-    container_name: mosquitto
-    restart: always
-    ports:
-      - "1883:1883"
-      - "9001:9001"
-    volumes:
-      - ./broker/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./broker/data:/mosquitto/data
-      - ./broker/log:/mosquitto/log
-    depends_on:
-      init-mosquitto:
-        condition: service_completed_successfully
-    # Tells Mosquitto explicitly where to find the config file
-    command: mosquitto -c /mosquitto/config/mosquitto.conf
-    # Healthcheck to ensure the service is actually responding
-    healthcheck:
-      test: ["CMD-SHELL", "timeout -s 9 1s mosquitto_sub -t '$$SYS/#' -C 1 > /dev/null || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  # 3. JAVA BACK-END
   weather-app:
     build:
       context: ./message-listener
       dockerfile: Dockerfile
     container_name: weather-app
-    # Force the app to use the volume path we defined
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - MQTT_HOST=${MQTT_HOST}
+      - MQTT_PORT=${MQTT_PORT:-1883}
     volumes:
       - weather_db_data:/app/data
     restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s # Gives Spring Boot time to start up before checking
 
 volumes:
   weather_db_data:

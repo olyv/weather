@@ -1,6 +1,6 @@
 spring:
   main:
-    web-application-type: none
+    web-application-type: servlet
   datasource:
     driver-class-name: org.sqlite.JDBC
     hikari:
@@ -17,6 +17,17 @@ spring:
             model: gemini-3.6-flash
             temperature: 0.7
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
 # MQTT Broker Settings
 mqtt:
   client:
@@ -25,7 +36,7 @@ mqtt:
   completion-timeout: 5000
   qos: 1
 
-# purge data older than
+# Purge data older than
 cutoff:
   days: 3
 
@@ -35,4 +46,3 @@ telegram:
     token: ${TELEGRAM_TOKEN}
   chat:
     id: ${TELEGRAM_CHAT_ID}
-
