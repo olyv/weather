@@ -1,6 +1,6 @@
 spring:
   main:
-    web-application-type: none
+    web-application-type: servlet
   datasource:
     driver-class-name: org.sqlite.JDBC
     hikari:
@@ -16,6 +16,17 @@ spring:
           options:
             model: gemini-3.6-flash
             temperature: 0.7
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
 
 # MQTT Broker Settings
 mqtt:
