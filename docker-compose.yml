@@ -13,6 +13,7 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - MQTT_HOST=${MQTT_HOST}
       - MQTT_PORT=${MQTT_PORT:-1883}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - weather_db_data:/app/data
     restart: always
