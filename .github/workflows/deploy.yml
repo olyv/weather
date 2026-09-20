@@ -20,7 +20,7 @@ jobs:
           host: ${{ secrets.HOST_IP }}
           username: opc 
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: TELEGRAM_TOKEN,TELEGRAM_CHAT_ID,MQTT_HOST,MQTT_PORT
+          envs: TELEGRAM_TOKEN,TELEGRAM_CHAT_ID,MQTT_HOST,MQTT_PORT,GEMINI_API_KEY
           script: |
             set -e
 
@@ -41,6 +41,7 @@ jobs:
             echo "MQTT_PORT=$MQTT_PORT" >> .env
             echo "TELEGRAM_TOKEN=$TELEGRAM_TOKEN" >> .env
             echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> .env
+            echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
             
             # 3. Rebuild and deploy the containers
             sudo docker compose up -d --build --remove-orphans
