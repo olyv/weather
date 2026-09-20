@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   weather-app:
+    image: weather-app
     build:
       context: ./message-listener
       dockerfile: Dockerfile
